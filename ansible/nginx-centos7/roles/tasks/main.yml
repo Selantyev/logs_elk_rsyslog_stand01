@@ -1,0 +1,60 @@
+---
+# tasks file for nginx
+
+- name: Add nginx yum repository
+  become: true
+  yum_repository:
+    name: nginx_official
+    description: nginx official repository
+    baseurl: https://nginx.org/packages/centos/{{ releasever }}/{{ basearch }}/
+    gpgcheck: no
+    enabled: yes
+
+- name: Install epel-release
+  become: true
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Upgrade all packages
+  become: true
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install extra packeges
+  become: true
+  yum:
+    name: '{{ packages }}'
+    state: latest
+
+- name: Install nginx
+  become: true
+  yum:
+    name: nginx
+    state: present
+  register: nginxinstalled
+
+- name: Stat /etc/nginx/conf.d/default.conf
+  stat: path=/etc/nginx/conf.d/default.conf
+  register: defaultconfstat
+
+- name: Backup default nginx config file
+  become: true
+  when: defaultconfstat.stat.exists
+  command: mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.bkp
+
+- name: Add nginx config file from template
+  when: nginxinstalled is succeeded
+  become: true
+  template: src=nginx_default.conf dest=/etc/nginx/conf.d/nginx_default.conf owner=nginx group=nginx
+
+- name: Allow nginx to listen on tcp port 8080
+  become: true
+  seport:
+    ports: 8080
+    proto: tcp
+    setype: http_port_t
+    state: present
+  notify: Restart service nginx
+...

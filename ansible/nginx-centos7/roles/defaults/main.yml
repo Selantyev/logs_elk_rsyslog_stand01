@@ -1,0 +1,13 @@
+---
+# defaults file for nginx
+releasever: 7
+basearch: x86_64
+packages:
+- tree
+- vim
+- htop
+- libselinux-python
+- policycoreutils-python
+nginx_port: 8080
+nginx_server_name: otus
+...
