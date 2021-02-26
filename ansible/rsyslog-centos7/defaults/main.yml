@@ -1,0 +1,11 @@
+---
+# defaults file for rsyslog-centos7
+packages:
+- tree
+- vim
+- htop
+- libselinux-python
+- policycoreutils-python
+- bash-completion
+- telnet
+...

@@ -1,0 +1,66 @@
+---
+# tasks file for rsyslog-server-centos7
+- name: Install rsyslog
+  become: true
+  yum:
+    name: rsyslog
+    state: latest
+  register: rsysloginstalled
+
+- name: Install rsyslog-doc
+  become: true
+  yum:
+    name: rsyslog-doc
+    state: latest
+
+- name: Install epel-release
+  become: true
+  yum:
+    name: epel-release
+    state: latest
+
+- name: Install extra packeges
+  become: true
+  yum:
+    name: '{{ packages }}'
+    state: latest
+
+- name: Stat /etc/rsyslog.conf
+  stat: path=/etc/rsyslog.conf
+  register: defaultconfstat
+
+- name: Add rsyslog config file from template
+  when: rsysloginstalled is succeeded
+  become: true
+  template: src=port.conf dest=/etc/rsyslog.d/port.conf owner=root group=root
+
+- name: Allow rsyslog to listen on udp port
+  become: true
+  seport:
+    ports: 514
+    proto: udp
+    setype: syslogd_port_t
+    state: present
+
+- name: Allow rsyslog udp port in firewalld
+  become: true
+  firewalld:
+    port: 514/udp
+    permanent: yes
+    state: enabled
+    immediate: true
+
+- name: Startup enable rsyslog
+  become: true
+  systemd:
+    name: rsyslog
+    enabled: yes
+    masked: no
+
+- name: Restart service rsyslog
+  become: true
+  systemd:
+    state: restarted
+    name: rsyslog
+
+...

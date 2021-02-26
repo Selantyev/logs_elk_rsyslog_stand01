@@ -1,0 +1,6 @@
+---
+- hosts: logs
+  roles:
+  - rsyslog-centos7 
+...
+

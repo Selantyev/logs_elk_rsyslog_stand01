@@ -1,0 +1,8 @@
+---
+# handlers file for rsyslog-centos7
+
+- name: Restart service rsyslog
+  systemd:
+    state: restarted
+    name: rsyslog
+...
